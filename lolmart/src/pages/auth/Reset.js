@@ -1,17 +1,36 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import styles from "./Auth.module.scss";
 import ResetImage from "../../assets/forgot.png";
 import Card from "../../component/card/Card";
 import { Link } from "react-router-dom";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../firebase/config";
+import {toast, ToastContainer} from 'react-toastify'
+import Loader from "../../component/loader/Loader";
+
 const Reset = () => {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false)
 
   const resetHandler = (e) => {
     e.preventDefault();
+    setIsLoading(true)
+    sendPasswordResetEmail(auth, email)
+  .then(() => {
+    setIsLoading(false)
+    toast.success('Reset link sent to your email.')
+    // Password reset email sent!
+  })
+  .catch((error) => {
+    setIsLoading(false)
+    toast.error(error.message)
+  });
 
   };
   return (
-    <>
+    <Fragment>
+    {isLoading && <Loader />}
+    <ToastContainer />
       <div className={styles["auth-div"]}>
         <div>
           <img src={ResetImage} alt="Login" width={400} />
@@ -36,7 +55,7 @@ const Reset = () => {
           </Card>
         </div>
       </div>
-    </>
+    </Fragment>
   );
 };
 
